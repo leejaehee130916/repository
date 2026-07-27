@@ -1,0 +1,127 @@
+```html
+<!-- 파일 경로: pages/rock-paper-scissors.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가위바위보 게임</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div id="header"></div>
+
+<main class="container">
+
+    <h1 class="section-title">✊ 가위바위보 게임</h1>
+
+    <div class="game-area">
+
+        <div class="score-board">
+            <div class="score">🏆 승 <span id="win">0</span></div>
+            <div class="score">🤝 무 <span id="draw">0</span></div>
+            <div class="score">😢 패 <span id="lose">0</span></div>
+        </div>
+
+        <h2 style="text-align:center;margin:30px 0;">
+            하나를 선택하세요!
+        </h2>
+
+        <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="play('가위')">✌ 가위</button>
+            <button class="btn btn-primary" onclick="play('바위')">✊ 바위</button>
+            <button class="btn btn-primary" onclick="play('보')">✋ 보</button>
+        </div>
+
+        <div id="result"
+            style="margin-top:40px;text-align:center;font-size:1.3rem;line-height:2;">
+            버튼을 눌러 게임을 시작하세요.
+        </div>
+
+        <div style="text-align:center;margin-top:30px;">
+            <button class="btn btn-secondary" onclick="resetGame()">
+                점수 초기화
+            </button>
+        </div>
+
+    </div>
+
+</main>
+
+<footer>
+    © 2026 여름 놀이터
+</footer>
+
+<script src="../js/header.js"></script>
+
+<script>
+
+const choices = ["가위","바위","보"];
+
+let win = 0;
+let draw = 0;
+let lose = 0;
+
+function play(user){
+
+    const computer =
+        choices[Math.floor(Math.random()*3)];
+
+    let message = "";
+
+    if(user === computer){
+
+        draw++;
+        message = "🤝 무승부!";
+
+    }else if(
+
+        (user==="가위" && computer==="보") ||
+        (user==="바위" && computer==="가위") ||
+        (user==="보" && computer==="바위")
+
+    ){
+
+        win++;
+        message = "🎉 승리!";
+
+    }else{
+
+        lose++;
+        message = "😢 패배!";
+
+    }
+
+    document.getElementById("win").textContent = win;
+    document.getElementById("draw").textContent = draw;
+    document.getElementById("lose").textContent = lose;
+
+    document.getElementById("result").innerHTML = `
+        <p>😊 나 : <strong>${user}</strong></p>
+        <p>💻 컴퓨터 : <strong>${computer}</strong></p>
+        <h2>${message}</h2>
+    `;
+}
+
+function resetGame(){
+
+    win = 0;
+    draw = 0;
+    lose = 0;
+
+    document.getElementById("win").textContent = 0;
+    document.getElementById("draw").textContent = 0;
+    document.getElementById("lose").textContent = 0;
+
+    document.getElementById("result").innerHTML =
+        "버튼을 눌러 게임을 시작하세요.";
+
+}
+
+</script>
+
+</body>
+</html>
+```

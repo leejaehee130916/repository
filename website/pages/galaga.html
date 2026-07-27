@@ -1,0 +1,190 @@
+<!-- 파일 경로: pages/galaga.html -->
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>갤러그 게임</title>
+
+<link rel="stylesheet"
+href="../css/style.css">
+
+<link rel="stylesheet"
+href="../css/galaga.css">
+
+</head>
+
+<body>
+
+<div id="header"></div>
+
+<main class="game-page">
+
+    <section class="game-header">
+
+        <h1>🚀 갤러그 게임</h1>
+
+        <p>
+            방향키로 이동하고
+            스페이스바로 공격하세요.
+        </p>
+
+    </section>
+
+    <section class="status">
+
+        <div class="status-box">
+
+            ⭐ 점수
+
+            <span id="score">
+
+                0
+
+            </span>
+
+        </div>
+
+        <div class="status-box">
+
+            ❤️ HP
+
+            <span id="hp">
+
+                3
+
+            </span>
+
+        </div>
+
+        <div class="status-box">
+
+            🚀 레벨
+
+            <span id="level">
+
+                1
+
+            </span>
+
+        </div>
+
+        <div class="status-box">
+
+            🏆 최고점수
+
+            <span id="best">
+
+                0
+
+            </span>
+
+        </div>
+
+    </section>
+
+    <section class="canvas-area">
+
+        <canvas
+            id="gameCanvas"
+            width="480"
+            height="640">
+
+        </canvas>
+
+    </section>
+
+    <section
+        class="mobile-controller">
+
+        <button
+            id="leftBtn">
+
+            ◀
+
+        </button>
+
+        <button
+            id="fireBtn">
+
+            🔥
+
+        </button>
+
+        <button
+            id="rightBtn">
+
+            ▶
+
+        </button>
+
+    </section>
+
+    <section
+        id="gameOver"
+        class="game-over hidden">
+
+        <h2>
+
+            GAME OVER
+
+        </h2>
+
+        <p>
+
+            최종 점수
+
+            <span id="finalScore">
+
+                0
+
+            </span>
+
+        </p>
+
+        <button
+            id="restartBtn">
+
+            다시 시작
+
+        </button>
+
+    </section>
+
+</main>
+
+<footer>
+
+© 2026 여름 놀이터
+
+</footer>
+
+<script
+src="../js/header.js"></script>
+
+<script
+src="../js/player.js"></script>
+
+<script
+src="../js/enemy.js"></script>
+
+<script
+src="../js/bullet.js"></script>
+
+<script
+src="../js/collision.js"></script>
+
+<script
+src="../js/ui.js"></script>
+
+<script
+src="../js/galaga.js"></script>
+
+</body>
+
+</html>
