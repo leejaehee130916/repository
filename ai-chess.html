@@ -1,0 +1,224 @@
+<script>
+    // 1. 기본 체크메이트 전술 템플릿 (1수 메이트 5종, 2수 메이트 5종)
+    const baseTemplates = [
+      // --- [1수 메이트 템플릿] ---
+      {
+        type: "MATE IN ONE",
+        typeText: "1수 체크메이트! 한 수 만에 체크메이트를 만드세요.",
+        movesCount: 1,
+        board: [['♜','♞','♝','♛','♚','♝','','♜'],['♟','♟','♟','♟','','♟','♟','♟'],['','','','','♟','','',''],['','','','','','','',''],['','','♗','','♙','','',''],['','','','','','','',''],['♙','♙','♙','♙','','♙','♙','♙'],['♖','♘','♗','♕','♔','','♘','♖']],
+        solutions: [{ from: [7, 3], to: [1, 5] }]
+      },
+      {
+        type: "MATE IN ONE",
+        typeText: "1수 체크메이트! 약점 칸을 찾아 공격하세요.",
+        movesCount: 1,
+        board: [['','','','','♚','','','♜'],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['♖','','','','','','','♔']],
+        solutions: [{ from: [7, 0], to: [0, 0] }]
+      },
+      {
+        type: "MATE IN ONE",
+        typeText: "1수 체크메이트! 최선의 수를 찾아보세요.",
+        movesCount: 1,
+        board: [['♜','','♝','♛','♚','♝','','♜'],['♟','♟','♟','♟','','♟','♟','♟'],['','','♞','','','','',''],['','','','','','','',''],['','','','','♙','','',''],['','','','','','♗','',''],['♙','♙','♙','♙','','♙','♙','♙'],['♖','♘','','♕','♔','','♘','♖']],
+        solutions: [{ from: [7, 3], to: [1, 7] }]
+      },
+      {
+        type: "MATE IN ONE",
+        typeText: "1수 체크메이트! 상대 킹의 달아날 길을 차단하세요.",
+        movesCount: 1,
+        board: [['♜','','','','','♜','♚','♟'],['♟','♟','','','','♟','♟','♟'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','♘','','','♔']],
+        solutions: [{ from: [7, 4], to: [0, 5] }]
+      },
+      {
+        type: "MATE IN ONE",
+        typeText: "1수 체크메이트! 결정적인 한 수를 두세요.",
+        movesCount: 1,
+        board: [['♜','','','','♚','♝','','♜'],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','♟','','','',''],['','','','','','','',''],['','','','','','','♗',''],['♙','♙','♙','','','♙','♙','♙'],['♖','♘','','♕','♔','','♘','♖']],
+        solutions: [{ from: [7, 3], to: [1, 6] }]
+      },
+
+      // --- [2수 메이트 템플릿] ---
+      {
+        type: "MATE IN TWO",
+        typeText: "2수 체크메이트! 체크 후 2번째 수로 체크메이트를 만드세요.",
+        movesCount: 2,
+        board: [['♜','','','','♚','','','♜'],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['♙','♙','♙','','','♙','♙','♙'],['♖','','','♕','♔','','','♖']],
+        solutions: [
+          { from: [7, 3], to: [1, 3] }, // 1수 [체크]
+          { aiFrom: [0, 4], aiTo: [0, 3] }, // AI 응수
+          { from: [1, 3], to: [0, 3] }  // 2수 [체크메이트]
+        ]
+      },
+      {
+        type: "MATE IN TWO",
+        typeText: "2수 체크메이트! 첫 번째 체크 수를 찾아보세요.",
+        movesCount: 2,
+        board: [['','','','♚','','','',''],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['♖','','','','','','',''],['','','','','♔','','','♖']],
+        solutions: [
+          { from: [6, 0], to: [1, 0] },
+          { aiFrom: [0, 3], aiTo: [0, 2] },
+          { from: [7, 7], to: [0, 7] }
+        ]
+      },
+      {
+        type: "MATE IN TWO",
+        typeText: "2수 체크메이트! 상대를 몰아붙여 체크메이트를 완성하세요.",
+        movesCount: 2,
+        board: [['♜','','','','♚','♝','','♜'],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','♗','',''],['♙','♙','♙','','','♙','♙','♙'],['♖','♘','','♕','♔','','♘','♖']],
+        solutions: [
+          { from: [5, 5], to: [1, 1] },
+          { aiFrom: [0, 4], aiTo: [0, 3] },
+          { from: [7, 3], to: [0, 3] }
+        ]
+      },
+      {
+        type: "MATE IN TWO",
+        typeText: "2수 체크메이트! 희생이나 유인 수를 활용해 보세요.",
+        movesCount: 2,
+        board: [['','','','','♚','','','♜'],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['♙','♙','♙','','♕','','',''],['♖','','','','♔','','','']],
+        solutions: [
+          { from: [6, 4], to: [1, 4] },
+          { aiFrom: [0, 4], aiTo: [1, 4] },
+          { from: [7, 0], to: [0, 0] }
+        ]
+      },
+      {
+        type: "MATE IN TWO",
+        typeText: "2수 체크메이트! 연속 공격으로 승리하세요.",
+        movesCount: 2,
+        board: [['','','','','♚','','','♜'],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','','♘','','',''],['','','','','','','',''],['','','','','','','',''],['♙','♙','♙','','','♙','♙','♙'],['♖','','','','♔','','','']],
+        solutions: [
+          { from: [3, 4], to: [1, 5] },
+          { aiFrom: [0, 4], aiTo: [0, 3] },
+          { from: [7, 0], to: [0, 0] }
+        ]
+      }
+    ];
+
+    // 2. 총 300개의 퍼즐 목록 생성 함수
+    function build300Puzzles() {
+      const list = [];
+      for (let i = 0; i < 300; i++) {
+        const template = baseTemplates[i % baseTemplates.length];
+        const newPuzzle = JSON.parse(JSON.stringify(template));
+        newPuzzle.id = i + 1;
+        list.push(newPuzzle);
+      }
+      return list;
+    }
+
+    const puzzles = build300Puzzles();
+    let currentPuzzle = null;
+    let selectedSquare = null;
+    let currentStep = 0;
+
+    // 3. 체스판 화면 그려주기
+    function renderBoard(boardData) {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const sq = document.createElement('div');
+          sq.className = `square ${(r + c) % 2 === 0 ? 'white' : 'black'}`;
+          sq.textContent = boardData[r][c];
+          sq.dataset.row = r;
+          sq.dataset.col = c;
+          sq.addEventListener('click', () => onSquareClick(r, c));
+          boardEl.appendChild(sq);
+        }
+      }
+    }
+
+    // 4. 무작위 퍼즐 불러오기
+    function loadRandomPuzzle() {
+      currentStep = 0;
+      selectedSquare = null;
+      const randomIndex = Math.floor(Math.random() * puzzles.length);
+      currentPuzzle = puzzles[randomIndex];
+
+      document.querySelector('h2').textContent = currentPuzzle.type;
+      document.querySelector('.sub-title').textContent = currentPuzzle.typeText;
+      document.getElementById('puzzle-status').textContent = `퍼즐 #${currentPuzzle.id} / 300 (${currentPuzzle.type})`;
+      
+      renderBoard(currentPuzzle.board);
+    }
+
+    // 5. 체스 말 이동 및 정답 처리
+    function onSquareClick(r, c) {
+      if (!selectedSquare) {
+        if (currentPuzzle.board[r][c] !== '') {
+          selectedSquare = { r, c };
+          highlightSquare(r, c);
+        }
+      } else {
+        if (currentPuzzle.movesCount === 1) {
+          // 1수 체크메이트 로직
+          const sol = currentPuzzle.solutions[0];
+          if (selectedSquare.r === sol.from[0] && selectedSquare.c === sol.from[1] && r === sol.to[0] && c === sol.to[1]) {
+            currentPuzzle.board[r][c] = currentPuzzle.board[selectedSquare.r][selectedSquare.c];
+            currentPuzzle.board[selectedSquare.r][selectedSquare.c] = '';
+            document.getElementById('puzzle-status').textContent = `🎉 퍼즐 #${currentPuzzle.id} 정답! (CHECKMATE)`;
+          } else {
+            document.getElementById('puzzle-status').textContent = `❌ 다시 시도해 보세요.`;
+          }
+          selectedSquare = null;
+          renderBoard(currentPuzzle.board);
+
+        } else if (currentPuzzle.movesCount === 2) {
+          // 2수 체크메이트 로직
+          if (currentStep === 0) {
+            // [1수 째 - 체크]
+            const step1Sol = currentPuzzle.solutions[0];
+            if (selectedSquare.r === step1Sol.from[0] && selectedSquare.c === step1Sol.from[1] && r === step1Sol.to[0] && c === step1Sol.to[1]) {
+              currentPuzzle.board[r][c] = currentPuzzle.board[selectedSquare.r][selectedSquare.c];
+              currentPuzzle.board[selectedSquare.r][selectedSquare.c] = '';
+              selectedSquare = null;
+              renderBoard(currentPuzzle.board);
+              document.getElementById('puzzle-status').textContent = `💡 좋습니다! 체크에 상대 AI가 응수합니다...`;
+
+              setTimeout(() => {
+                const aiSol = currentPuzzle.solutions[1];
+                currentPuzzle.board[aiSol.aiTo[0]][aiSol.aiTo[1]] = currentPuzzle.board[aiSol.aiFrom[0]][aiSol.aiFrom[1]];
+                currentPuzzle.board[aiSol.aiFrom[0]][aiSol.aiFrom[1]] = '';
+                currentStep = 1;
+                renderBoard(currentPuzzle.board);
+                document.getElementById('puzzle-status').textContent = `⚔️ 이제 마지막 체크메이트 수(2수 째)를 두세요!`;
+              }, 600);
+
+            } else {
+              document.getElementById('puzzle-status').textContent = `❌ 틀린 수입니다. 다시 시도해 보세요.`;
+              selectedSquare = null;
+              renderBoard(currentPuzzle.board);
+            }
+
+          } else if (currentStep === 1) {
+            // [2수 째 - 체크메이트]
+            const step2Sol = currentPuzzle.solutions[2];
+            if (selectedSquare.r === step2Sol.from[0] && selectedSquare.c === step2Sol.from[1] && r === step2Sol.to[0] && c === step2Sol.to[1]) {
+              currentPuzzle.board[r][c] = currentPuzzle.board[selectedSquare.r][selectedSquare.c];
+              currentPuzzle.board[selectedSquare.r][selectedSquare.c] = '';
+              document.getElementById('puzzle-status').textContent = `🎉 퍼즐 #${currentPuzzle.id} 성공! 2수 만에 체크메이트!`;
+            } else {
+              document.getElementById('puzzle-status').textContent = `❌ 마지막 수가 틀렸습니다. 다시 시도해 보세요.`;
+            }
+            selectedSquare = null;
+            renderBoard(currentPuzzle.board);
+          }
+        }
+      }
+    }
+
+    function highlightSquare(r, c) {
+      const squares = document.querySelectorAll('.square');
+      squares.forEach(sq => {
+        if (parseInt(sq.dataset.row) === r && parseInt(sq.dataset.col) === c) {
+          sq.classList.add('selected');
+        } else {
+          sq.classList.remove('selected');
+        }
+      });
+    }
+
+    loadRandomPuzzle();
+  </script>

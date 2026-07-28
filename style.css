@@ -1,0 +1,117 @@
+/* 기본 스타일 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  background-color: #2b2b2b;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #3d3d3d;
+}
+
+header h1 a {
+  color: #f0d9b5;
+  text-decoration: none;
+  font-size: 1.5rem;
+}
+
+nav a {
+  color: #cccccc;
+  text-decoration: none;
+  margin-left: 1.5rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+nav a:hover, nav a.active {
+  color: #b58863;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+}
+
+.sub-title {
+  color: #aaaaaa;
+  margin-bottom: 1.5rem;
+}
+
+/* 체스판 스타일 */
+.controls {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+select, button {
+  padding: 0.5rem 1rem;
+  background-color: #333333;
+  color: #ffffff;
+  border: 1px solid #555555;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover, select:hover {
+  background-color: #444444;
+}
+
+.chessboard {
+  width: 400px;
+  height: 400px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border: 4px solid #3d3d3d;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+}
+
+.square {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.square.white {
+  background-color: #f0d9b5;
+}
+
+.square.black {
+  background-color: #b58863;
+}
+
+.square.selected {
+  background-color: #7b964a !important;
+}
+
+footer {
+  background-color: #2b2b2b;
+  text-align: center;
+  padding: 1rem;
+  border-top: 1px solid #3d3d3d;
+  color: #888888;
+  font-size: 0.9rem;
+}
