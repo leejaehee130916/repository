@@ -22,9 +22,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function startNewGame() {
         game.reset();
         
+        // 로컬 images 폴더 경로 설정 (pages/ 폴더 기준 상위 폴더의 images)
         const config = {
             draggable: true,
             position: 'start',
+            pieceTheme: '../images/{piece}.png',
             onDragStart: onDragStart,
             onDrop: onDrop,
             onSnapEnd: onSnapEnd
