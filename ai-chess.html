@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>AI와의 체스</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/header.js" defer></script>
+  <script src="../js/footer.js" defer></script>
+</head>
+<body>
+  <main>
+    <h2>AI와 체스 대국</h2>
+    <p class="sub-title">레이팅을 선택하고 AI를 상대해 보세요!</p>
+
+    <div class="controls">
+      <label for="rating">AI 레이팅: </label>
+      <select id="rating">
+        <option value="200">200</option>
+        <option value="500">500</option>
+        <option value="1000">1000</option>
+        <option value="1200">1200</option>
+        <option value="1500">1500</option>
+      </select>
+      <button onclick="resetGame()">새 게임 🔄</button>
+    </div>
+
+    <div id="board" class="chessboard"></div>
+  </main>
+
+  <script>
+    let boardState = [
+      ['♜','♞','♝','♛','♚','♝','♞','♜'],
+      ['♟','♟','♟','♟','♟','♟','♟','♟'],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['♙','♙','♙','♙','♙','♙','♙','♙'],
+      ['♖','♘','♗','♕','♔','♗','♘','♖']
+    ];
+
+    let selected = null;
+
+    function renderBoard() {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const sq = document.createElement('div');
+          sq.className = `square ${(r + c) % 2 === 0 ? 'white' : 'black'}`;
+          sq.textContent = boardState[r][c];
+          sq.addEventListener('click', () => handleClick(r, c));
+          boardEl.appendChild(sq);
+        }
+      }
+    }
+
+    function handleClick(r, c) {
+      if (!selected) {
+        if (boardState[r][c] !== '') {
+          selected = { r, c };
+        }
+      } else {
+        // 백 기물 이동
+        boardState[r][c] = boardState[selected.r][selected.c];
+        boardState[selected.r][selected.c] = '';
+        selected = null;
+        renderBoard();
+
+        // 0.5초 뒤 AI의 임의 응수 (간단한 AI 동작)
+        setTimeout(makeAIMove, 500);
+      }
+    }
+
+    function makeAIMove() {
+      const blackPieces = [];
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          if (['♜','♞','♝','♛','♚','♟'].includes(boardState[r][c])) {
+            blackPieces.push({ r, c });
+          }
+        }
+      }
+
+      if (blackPieces.length > 0) {
+        const randomPiece = blackPieces[Math.floor(Math.random() * blackPieces.length)];
+        // 한 칸 앞으로 이동하는 기본 동작 예시
+        const targetR = Math.min(7, randomPiece.r + 1);
+        boardState[targetR][randomPiece.c] = boardState[randomPiece.r][randomPiece.c];
+        boardState[randomPiece.r][randomPiece.c] = '';
+        renderBoard();
+      }
+    }
+
+    function resetGame() {
+      boardState = [
+        ['♜','♞','♝','♛','♚','♝','♞','♜'],
+        ['♟','♟','♟','♟','♟','♟','♟','♟'],
+        ['','','','','','','',''],
+        ['','','','','','','',''],
+        ['','','','','','','',''],
+        ['','','','','','','',''],
+        ['♙','♙','♙','♙','♙','♙','♙','♙'],
+        ['♖','♘','♗','♕','♔','♗','♘','♖']
+      ];
+      selected = null;
+      renderBoard();
+    }
+
+    renderBoard();
+  </script>
+</body>
+</html>
