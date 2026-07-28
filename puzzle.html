@@ -2,45 +2,213 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>체스 퍼즐 - MATE IN ONE</title>
+  <title>체스 퍼즐</title>
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/header.js" defer></script>
   <script src="../js/footer.js" defer></script>
+  <style>
+    /* 체스판 좌표 및 레이아웃 관련 추가 스타일 */
+    .board-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px auto;
+    }
+    .board-with-coords {
+      display: grid;
+      grid-template-columns: 25px 1fr;
+      grid-template-rows: 1fr 25px;
+      gap: 5px;
+    }
+    .coords-y {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-weight: bold;
+      color: #aaa;
+      padding: 5px 0;
+    }
+    .coords-x {
+      grid-column: 2;
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      color: #aaa;
+      padding: 0 5px;
+    }
+    .score-board {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #ffca28;
+      margin: 10px 0;
+    }
+    .hint-highlight {
+      background-color: #ffd54f !important;
+      animation: pulse 1s infinite alternate;
+    }
+    @keyframes pulse {
+      from { opacity: 0.6; }
+      to { opacity: 1; }
+    }
+  </style>
 </head>
 <body>
   <main>
     <h2>MATE IN ONE</h2>
-    <p class="sub-title">1수만에 체크메이트를 만드는 수를 찾아보세요!</p>
-    
-    <div class="controls">
-      <button onclick="loadRandomPuzzle()">다음 퍼즐 🎲</button>
-      <span id="puzzle-status"></span>
+    <p class="sub-title">1수 체크메이트! 한 수 만에 체크메이트를 만드세요.</p>
+
+    <div class="score-board">
+      🏆 맞힌 퍼즐 수: <span id="score">0</span>개
     </div>
 
-    <div id="board" class="chessboard"></div>
+    <div class="controls">
+      <button onclick="loadRandomPuzzle()">다음 퍼즐 🎲</button>
+      <button onclick="showHint()">힌트 💡</button>
+      <button onclick="resetCurrentPuzzle()">다시 시도 🔄</button>
+    </div>
+
+    <div class="board-container">
+      <div class="board-with-coords">
+        <div class="coords-y">
+          <span>8</span><span>7</span><span>6</span><span>5</span>
+          <span>4</span><span>3</span><span>2</span><span>1</span>
+        </div>
+        <div id="board" class="chessboard"></div>
+        <div class="coords-x">
+          <span>a</span><span>b</span><span>c</span><span>d</span>
+          <span>e</span><span>f</span><span>g</span><span>h</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="puzzle-status" class="status-msg"></div>
   </main>
 
   <script>
-    // 1수 체크메이트 예시 데이터 모음 (확장 가능)
-    const puzzles = [
+    // ----------------------------------------------------
+    // [기능 1] 웹 오디오 API를 이용한 효과음 재생기 (파일 필요 없음)
+    // ----------------------------------------------------
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new AudioCtx();
+    }
+
+    // 착수 효과음 (소프트한 목재 소리)
+    function playMoveSound() {
+      initAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    }
+
+    // 체크메이트 성공 효과음 (맑고 승리감 있는 2음)
+    function playSuccessSound() {
+      initAudio();
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523.25, now); // C5
+      osc.frequency.setValueAtTime(659.25, now + 0.12); // E5
+      osc.frequency.setValueAtTime(783.99, now + 0.24); // G5
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(now + 0.5);
+    }
+
+    // ----------------------------------------------------
+    // 퍼즐 데이터 및 로직
+    // ----------------------------------------------------
+    const baseTemplates = [
       {
-        // 퀸으로 f7 공격하여 체크메이트
-        board: [
-          ['♜','♞','♝','♛','♚','♝','','♜'],
-          ['♟','♟','♟','♟','','♟','♟','♟'],
-          ['','','','','♟','','',''],
-          ['','','','','','','',''],
-          ['','','♗','','♙','','',''],
-          ['','','','','','','',''],
-          ['♙','♙','♙','♙','','♙','♙','♙'],
-          ['♖','♘','♗','♕','♔','','♘','♖']
-        ],
-        solution: { from: [7, 3], to: [1, 5] } // 백 퀸이 (7,3)에서 (1,5)로 이동
+        type: "MATE IN ONE",
+        typeText: "1수 체크메이트! 한 수 만에 체크메이트를 만드세요.",
+        movesCount: 1,
+        board: [['♜','♞','♝','♛','♚','♝','','♜'],['♟','♟','♟','♟','','♟','♟','♟'],['','','','','♟','','',''],['','','','','','','',''],['','','♗','','♙','','',''],['','','','','','','',''],['♙','♙','♙','♙','','♙','♙','♙'],['♖','♘','♗','♕','♔','','♘','♖']],
+        solutions: [{ from: [7, 3], to: [1, 5] }]
+      },
+      {
+        type: "MATE IN ONE",
+        typeText: "1수 체크메이트! 약점 칸을 찾아 공격하세요.",
+        movesCount: 1,
+        board: [['','','','','♚','','','♜'],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['♖','','','','','','','♔']],
+        solutions: [{ from: [7, 0], to: [0, 0] }]
+      },
+      {
+        type: "MATE IN ONE",
+        typeText: "1수 체크메이트! 최선의 수를 찾아보세요.",
+        movesCount: 1,
+        board: [['♜','','♝','♛','♚','♝','','♜'],['♟','♟','♟','♟','','♟','♟','♟'],['','','♞','','','','',''],['','','','','','','',''],['','','','','♙','','',''],['','','','','','♗','',''],['♙','♙','♙','♙','','♙','♙','♙'],['♖','♘','','♕','♔','','♘','♖']],
+        solutions: [{ from: [7, 3], to: [1, 7] }]
+      },
+      {
+        type: "MATE IN ONE",
+        typeText: "1수 체크메이트! 상대 킹의 달아날 길을 차단하세요.",
+        movesCount: 1,
+        board: [['♜','','','','','♜','♚','♟'],['♟','♟','','','','♟','♟','♟'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','♘','','','♔']],
+        solutions: [{ from: [7, 4], to: [0, 5] }]
+      },
+      {
+        type: "MATE IN ONE",
+        typeText: "1수 체크메이트! 결정적인 한 수를 두세요.",
+        movesCount: 1,
+        board: [['♜','','','','♚','♝','','♜'],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','♟','','','',''],['','','','','','','',''],['','','','','','','♗',''],['♙','♙','♙','','','♙','♙','♙'],['♖','♘','','♕','♔','','♘','♖']],
+        solutions: [{ from: [7, 3], to: [1, 6] }]
+      },
+      {
+        type: "MATE IN TWO",
+        typeText: "2수 체크메이트! 체크 후 2번째 수로 체크메이트를 만드세요.",
+        movesCount: 2,
+        board: [['♜','','','','♚','','','♜'],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['♙','♙','♙','','','♙','♙','♙'],['♖','','','♕','♔','','','♖']],
+        solutions: [
+          { from: [7, 3], to: [1, 3] },
+          { aiFrom: [0, 4], aiTo: [0, 3] },
+          { from: [1, 3], to: [0, 3] }
+        ]
+      },
+      {
+        type: "MATE IN TWO",
+        typeText: "2수 체크메이트! 첫 번째 체크 수를 찾아보세요.",
+        movesCount: 2,
+        board: [['','','','♚','','','',''],['♟','♟','♟','','','♟','♟','♟'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['♖','','','','','','',''],['','','','','♔','','','♖']],
+        solutions: [
+          { from: [6, 0], to: [1, 0] },
+          { aiFrom: [0, 3], aiTo: [0, 2] },
+          { from: [7, 7], to: [0, 7] }
+        ]
       }
     ];
 
+    function build300Puzzles() {
+      const list = [];
+      for (let i = 0; i < 300; i++) {
+        const template = baseTemplates[i % baseTemplates.length];
+        const newPuzzle = JSON.parse(JSON.stringify(template));
+        newPuzzle.id = i + 1;
+        list.push(newPuzzle);
+      }
+      return list;
+    }
+
+    const puzzles = build300Puzzles();
     let currentPuzzle = null;
+    let initialBoardState = null;
     let selectedSquare = null;
+    let currentStep = 0;
+    let solvedCount = 0;
 
     function renderBoard(boardData) {
       const boardEl = document.getElementById('board');
@@ -59,44 +227,23 @@
     }
 
     function loadRandomPuzzle() {
-      document.getElementById('puzzle-status').textContent = '';
-      currentPuzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
+      currentStep = 0;
+      selectedSquare = null;
+      const randomIndex = Math.floor(Math.random() * puzzles.length);
+      currentPuzzle = puzzles[randomIndex];
+      initialBoardState = JSON.parse(JSON.stringify(currentPuzzle.board));
+
+      document.querySelector('h2').textContent = currentPuzzle.type;
+      document.querySelector('.sub-title').textContent = currentPuzzle.typeText;
+      document.getElementById('puzzle-status').textContent = `퍼즐 #${currentPuzzle.id} / 300 (${currentPuzzle.type})`;
+      
       renderBoard(currentPuzzle.board);
     }
 
-    function onSquareClick(r, c) {
-      if (!selectedSquare) {
-        if (currentPuzzle.board[r][c] !== '') {
-          selectedSquare = { r, c };
-          highlightSquare(r, c);
-        }
-      } else {
-        // 정답 확인
-        const sol = currentPuzzle.solution;
-        if (selectedSquare.r === sol.from[0] && selectedSquare.c === sol.from[1] && r === sol.to[0] && c === sol.to[1]) {
-          currentPuzzle.board[r][c] = currentPuzzle.board[selectedSquare.r][selectedSquare.c];
-          currentPuzzle.board[selectedSquare.r][selectedSquare.c] = '';
-          document.getElementById('puzzle-status').textContent = '🎉 정답입니다! (CHECKMATE)';
-        } else {
-          document.getElementById('puzzle-status').textContent = '❌ 다시 시도해보세요.';
-        }
-        selectedSquare = null;
-        renderBoard(currentPuzzle.board);
-      }
-    }
-
-    function highlightSquare(r, c) {
-      const squares = document.querySelectorAll('.square');
-      squares.forEach(sq => {
-        if (parseInt(sq.dataset.row) === r && parseInt(sq.dataset.col) === c) {
-          sq.classList.add('selected');
-        } else {
-          sq.classList.remove('selected');
-        }
-      });
-    }
-
-    loadRandomPuzzle();
-  </script>
-</body>
-</html>
+    // [기능 2] 다시 시도 (리셋) 기능
+    function resetCurrentPuzzle() {
+      if (!currentPuzzle || !initialBoardState) return;
+      currentStep = 0;
+      selectedSquare = null;
+      currentPuzzle.board = JSON.parse(JSON.stringify(initialBoardState));
+      document.getElementById('puzzle-status').textContent = `🔄 퍼즐을 다시 시작
