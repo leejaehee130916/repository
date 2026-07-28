@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>체스 퍼즐 - Chess World</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+</head>
+<body>
+    <main>
+        <div class="container" style="max-width: 800px; margin: 0 auto;">
+            <h1 style="text-align: center;">🧩 체스 퍼즐 (300)</h1>
+            <p style="text-align: center;">무작위 퍼즐을 풀거나 원하는 퍼즐 번호를 선택해 보세요!</p>
+
+            <div style="display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+                <button id="random-btn" class="btn">🎲 무작위 퍼즐</button>
+                <label for="puzzle-select" style="color: #ccc;">퍼즐 선택:</label>
+                <select id="puzzle-select" style="padding: 8px; border-radius: 4px; background: #2a2a2a; color: #fff; border: 1px solid #444;">
+                    </select>
+                <button id="reset-btn" class="btn" style="background-color: #4b5563;">🔄 다시 시도</button>
+            </div>
+
+            <div id="puzzle-info" style="background-color: #2a2a2a; padding: 15px; border-radius: 6px; margin-bottom: 20px; text-align: center;">
+                <h3 id="puzzle-title" style="margin-bottom: 5px; color: #60a5fa;">퍼즐 불러오는 중...</h3>
+                <p id="puzzle-desc" style="margin-bottom: 0;">문제를 선택해 주세요.</p>
+            </div>
+
+            <div style="width: 100%; max-width: 450px; margin: 0 auto;">
+                <div id="myBoard" style="width: 100%;"></div>
+            </div>
+
+            <div id="status" style="text-align: center; font-size: 1.2rem; font-weight: bold; margin-top: 15px; min-height: 30px;"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Chess World. All rights reserved.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+
+    <script src="../js/puzzles.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/puzzle-game.js"></script>
+</body>
+</html>
