@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>체스 홈페이지</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/header.js" defer></script>
+  <script src="js/footer.js" defer></script>
+</head>
+<body>
+  <main>
+    <h2>오늘도 체스 공부 어떠세요? ♟️</h2>
+    <p class="sub-title">메뉴에서 '체스 퍼즐' 또는 'AI와의 체스'를 선택해 보세요.</p>
+    <div id="board" class="chessboard"></div>
+  </main>
+
+  <script>
+    // 메인 화면 기본 체스판 배치
+    const initialBoard = [
+      ['♜','♞','♝','♛','♚','♝','♞','♜'],
+      ['♟','♟','♟','♟','♟','♟','♟','♟'],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['♙','♙','♙','♙','♙','♙','♙','♙'],
+      ['♖','♘','♗','♕','♔','♗','♘','♖']
+    ];
+
+    const boardEl = document.getElementById('board');
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const square = document.createElement('div');
+        square.className = `square ${(row + col) % 2 === 0 ? 'white' : 'black'}`;
+        square.textContent = initialBoard[row][col];
+        boardEl.appendChild(square);
+      }
+    }
+  </script>
+</body>
+</html>
